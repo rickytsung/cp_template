@@ -37,6 +37,7 @@ inline void print(i128 n){
 
 //mod (limit : 1048576)
 const int mod1 = 469762049; const int mod2 = 998244353; const int mod3 = 1004535809;
+// - a * 2^x g_n
 //469762049	7 26 3
 //998244353	119	23 3 
 //1004535809 479 21	3 = 2097152
@@ -113,7 +114,9 @@ void polyinv(const poly &h, const int n, poly &f, const int mod) {
   }
 }
 
-// find ln(F), the constant needs to be 0 , f = ln h = ∫ h' / h dx 
+// find ln(F)
+// the constant a0 needs to be 0 
+// f = ln h = ∫ h' / h dx 
 void polyln(const poly &h, const int n, poly &f, const int mod) {
   assert(h[0] == 1);
   static poly_t ln_t;
@@ -129,7 +132,8 @@ void polyln(const poly &h, const int n, poly &f, const int mod) {
   integrate(ln_t, n, f, mod);
 }
 
-//find e^F, the constant needs to be 1 , f = exp(h) = f_0 (1 - ln f_0 + h)
+// find e^F, the constant a0 needs to be 1 
+// f = exp(h) = f_0 (1 - ln f_0 + h)
 void polyexp(const poly &h, const int n, poly &f, const int mod) {
   assert(h[0] == 0);
   static poly_t exp_t;
@@ -149,6 +153,33 @@ void polyexp(const poly &h, const int n, poly &f, const int mod) {
 
     std::fill(f + t, f + t2, 0);
   }
+}
+
+// give f(x) find g(x) where g^2(x) = f(x) the constant a0 needs to be 1
+// g(x) = (g0(x) + g0^-1(x)f(x)) / 2  
+void polysqrt(const poly &h, const int n, poly &f, const int mod){
+  static poly_t inv_t;
+  std::fill(f , f + n + n, 0);
+  static poly_t copy_h, inv_f;
+  assert(h[0] == 1);
+  f[0] = 1;
+  int inv2 = qpow(2, mod-2, mod); // 1/2
+  for (int t = 2; t <= n; t <<= 1) {
+    const int t2 = t << 1;
+    std::copy(h, h + t, copy_h);
+    std::fill(copy_h + t, copy_h + t2, 0);
+    polyinv(f, t, inv_f, mod);
+
+    NTT(copy_h, t2, 1, mod);
+    NTT(inv_f, t2, 1, mod);
+    for(int i = 0;i < t2; i++) copy_h[i] = 1ll * copy_h[i] * inv_f[i] % mod;
+	NTT(copy_h, t2, -1, mod);
+	for(int i = 0;i < t2; i++) f[i] = 1ll * (f[i] + copy_h[i]) % mod * 1ll * inv2 % mod;
+    std::fill(f + t, f + t2, 0);
+  }
+    
+}
+    
 }
 
 // for i64  - 2 int mod, return in i64
