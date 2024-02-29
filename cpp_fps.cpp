@@ -154,7 +154,7 @@ void polyexp(const poly &h, const int n, poly &f, const int mod) {
 // for i64  - 2 int mod, return in i64
 // replace qpow for faster speed.
 i64 CRT(i64 x, i64 y, const int modx, const int mody){
-   return (i64)x + (1ll * (x - y + mody) * qpow(modx, mody-2, mody) % mody) * modx;
+   return (i64)x + (1ll * (y - x + mody) * qpow(modx, mody-2, mody) % mody) * modx;
 }
 
 // CRT 3 int mod, return in a new mod
