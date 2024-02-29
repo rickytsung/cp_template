@@ -1,3 +1,4 @@
+// problem : https://www.luogu.com.cn/problem/P4245 
 #pragma GCC optimize("O3,unroll-loops")
 #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
 #include <bits/stdc++.h>
@@ -162,11 +163,9 @@ i64 CRT(i64 x, i64 y, const int modx, const int mody){
 i64 CRT3(i64 x, i64 y, i64 z, const i64 modx, const i64 mody, const i64 modz, const i64 new_mod){
    i64 s = (x + ((y - x + mody) % mody * qpow(modx, mody-2, mody) % mody) * modx);
    return ((z - s % modz + modz) % modz * qpow((int)((modx * mody) % modz), modz-2, modz) % modz * (modx * mody % new_mod) % new_mod + s) % new_mod;
-   //return ((s % new_mod) + ((z - (s % modz) + modz) % modz * qpow((int)((modx * mody) % modz), modz-2, modz) % modz * modx % new_mod * mody % new_mod)) % new_mod;
 }
 
 int main() {
-  
   IOS;
   int n, m, mod, u;
   cin >> n >> m >> mod;
