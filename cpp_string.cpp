@@ -61,7 +61,7 @@ namespace AC {
     //namespace AC
 }
 
-namespace KMP{
+namespace KMP {
 //KMP algorithm
 //KMP::find(L,S) find S pos in L (if not return -1)
 //KMP::findall(vec,L,S) find all S pos in L (return in vector vec)
@@ -140,10 +140,10 @@ namespace KMP{
     // namespace KMP
 }   
 
-namespace SA{
+namespace SA {
     // Suffix array template by theriseofdavid
-    // SA::build(arr, S) return 0-based
-    // SA::lcp(arr, sa) *to be added
+    // SA::build(sa_arr, S) return 0-based
+    // SA::lcp(lcp_arr, sa_arr, S) find lcp
     const int N = 1048576;
     int sa[N] , rk[N<<1] , oldrk[N<<1] , id[N] , cnt[N] ;
     int n , m , maxn , lenA , lenB;
@@ -187,8 +187,38 @@ namespace SA{
             arr[i] = sa[i+1] - 1; // return to 0-based
         }
     }
+    
+    void lcp(int* arr, int* sa, string s){
+        const int n = s.length();
+        int i, j, k = 0;
+        int rk[n];
+        for(i = 0; i < n; i++){
+            rk[sa[i]] = i;
+        }
+        
+        for(i = 0; i < n; i++){
+            if(rk[i] == n-1){
+                k = 0;
+                continue;
+            }
+            j = sa[rk[i] + 1];
+            while(i + k < n && j + k < n && s[i+k] == s[j+k]){
+                k++;
+            }
+            arr[rk[i]] = k;
+            k = max(0, k - 1);
+        }
+    }
 }
 
 int main(){
+    int sa[10];
+    int lcp[10];
+    string s = "aabbaa";
+    SA::build(sa, s);
+    SA::lcp(lcp, sa, s);
+    for(int i = 0; i < s.length()-1; i++){
+        cout << lcp[i] << "\n";
+    }
     return 0;
 }
