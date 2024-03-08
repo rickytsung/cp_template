@@ -1,4 +1,5 @@
 // problem : https://www.luogu.com.cn/problem/P4245 
+// https://judge.yosupo.jp/problem/convolution_mod_1000000007
 #pragma GCC optimize("O3,unroll-loops")
 #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
 #include <bits/stdc++.h>
@@ -36,19 +37,20 @@ inline void print(i128 n){
 // O(nlogn)
 
 //mod (limit : 1048576)
-const int mod1 = 469762049; const int mod2 = 998244353; const int mod3 = 1004535809;
+const int mod1 = 985661441; const int mod2 = 998244353; const int mod3 = 1004535809;
 // - a * 2^x g_n
 //469762049	7 26 3
+//985661441 235 22 3 
 //998244353	119	23 3 
 //1004535809 479 21	3 = 2097152
 
-const int maxn = 524288*2; // 2x
+const int maxn = 1<<21; // 2x
 using poly_t = int[maxn];
 using poly = int *const;
 
 int rev[maxn];
 
-int qpow(int x, int y, const int mod) {
+int qpow(i64 x, i64 y, const int mod) {
   int res(1);
   while (y) {
     if (y & 1) res = 1ll * res * x % mod;
@@ -180,17 +182,24 @@ void polysqrt(const poly &h, const int n, poly &f, const int mod){
     
 }
     
-}
-
 // for i64  - 2 int mod, return in i64
 // replace qpow for faster speed.
 i64 CRT(i64 x, i64 y, const int modx, const int mody){
    return (i64)x + (1ll * (y - x + mody) * qpow(modx, mody-2, mody) % mody) * modx;
 }
 
-// CRT 3 int mod, return in a new mod
-// replace qpow for faster speed
- 
+// CRT 3 mod -> new mod
+i64 garner(i64 a1, i64 a2,i64 a3, i64 m1, i64 m2, i64 m3, i64 mod) {
+    const int r12 = qpow(mod1, mod2-2, mod2);
+    const int r13 = qpow(mod1, mod3-2, mod3);
+    const int r23 = qpow(mod2, mod3-2, mod3);
+    a2 = 1ll * (a2 - a1 + mod2) * r12 % mod2;
+    a3 = 1ll * (a3 - a1 + mod3) * r13 % mod3;
+    a3 = 1ll * (a3 - a2 + mod3) * r23 % mod3;
+    return (a1 + 1ll * a2 * m1 % mod + a3 * m1 % mod * m2 % mod) % mod;
+}
+
+//same as above
 i64 CRT3(i64 x, i64 y, i64 z, const i64 modx, const i64 mody, const i64 modz, const i64 new_mod){
    i64 s = (x + ((y - x + mody) % mody * qpow(modx, mody-2, mody) % mody) * modx);
    return ((z - s % modz + modz) % modz * qpow((int)((modx * mody) % modz), modz-2, modz) % modz * (modx * mody % new_mod) % new_mod + s) % new_mod;
@@ -198,20 +207,25 @@ i64 CRT3(i64 x, i64 y, i64 z, const i64 modx, const i64 mody, const i64 modz, co
 
 int main() {
   IOS;
-  int n, m, mod, u;
-  cin >> n >> m >> mod;
+  int n, m, u;
+  const int mod = 1000000007;
+  cin >> n >> m;
   int lim = 1;
-  while(lim <= ((n+m) << 1)){
+  while(lim < ((n+m) << 1)){
       lim <<= 1;
   }
   static poly_t a1, b1, a2, b2, a3, b3;
   for(int i = 0; i < n; i++){
       cin >> u;
       a1[i] = a2[i] = a3[i] = u;
+      a1[i] %= mod1;
+      a2[i] %= mod2;
   }
   for(int i = 0; i < m; i++){
       cin >> u;
       b1[i] = b2[i] = b3[i] = u;
+      b1[i] %= mod1;
+      b2[i] %= mod2;
   }
 
   NTT(a1, lim, 1, mod1);
