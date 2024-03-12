@@ -5,7 +5,7 @@
 #include <bits/stdc++.h>
 #define i64 long long
 #define i128 __int128
-#define IOS ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+#define IOS ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
 #define pii pair<int, int>
 #define f first
 #define s second
